@@ -48,7 +48,7 @@ namespace CTRPluginFramework {
       scr.DrawRect(22, 22, 276, 196, Color::White, 0);
 
       scr.DrawSysfont(conv.to_bytes(data), posX, 32);
-      scr.DrawRect(48);
+      scr.DrawRect(posX, 48, 240, 1, Color::White);
 
       if (cursor_tick & 1) {
         scr.DrawRect(posX, 32, 1, 16, Color::White);
@@ -83,17 +83,30 @@ namespace CTRPluginFramework {
       tch_pos  = Touch::GetPosition();
 
       if (is_touch) {
+        tch_pos.x -= posX - 8;
+        tch_pos.y -= posY;
+
         tch_pos.x /= keyWidth;
         tch_pos.y /= keyHeight;
 
+        if (
+          tch_pos.x < 0 || tch_pos.y < 0 || tch_pos.x >= panelWidth ||
+          tch_pos.y >= panelHeight) {
+          is_touch = 0;
+          return;
+        }
+      }
+
+      if (Controller::IsKeyPressed(Key::Touchpad)) {
         auto p = keymap + tch_pos.x + tch_pos.y * panelWidth;
 
-        data.push_back((wchar_t)*p);
+        data += (char16_t)*p;
       }
     }
 
     int Open() {
       auto paused = Process::IsPaused();
+      auto code   = 0;
 
       if (!paused)
         Process::Pause();
@@ -106,13 +119,18 @@ namespace CTRPluginFramework {
         Control();
         Draw(scr);
 
+        if (Controller::IsKeyDown(Key::B)) {
+          code = -1;
+          break;
+        }
+
         OSD::SwapBuffers();
       }
 
       if (!paused)
         Process::Play();
 
-      return 0;
+      return code;
     }
 
   public:
