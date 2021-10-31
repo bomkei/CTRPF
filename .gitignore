@@ -1,0 +1,12 @@
+/objects
+/builder/__pycache__
+
+*.o
+*.elf
+*.bin
+
+*.3gx
+*.lst
+
+*.log
+*.txt
