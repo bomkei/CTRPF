@@ -89,6 +89,21 @@ namespace CTRPluginFramework {
   int FlagKeyboard(
     std::string const& msg, std::vector<std::tuple<char const*, bool&>>& items);
 
+  class KeyboardJPImpl;
+  class KeyboardJP {
+  public:
+    KeyboardJP(std::string const& text);
+    ~KeyboardJP();
+
+    void SetMaxLength(u32 max) const;
+    // void CanSwitch(bool canSwitch) const;
+    // void CanAbort(bool canAbort) const;
+    int Open(std::string& out);
+
+  private:
+    std::unique_ptr<KeyboardJPImpl> _impl;
+  };
+
   namespace ScreenTester {
     void screen_test(MenuEntry*);
     void screen_test_menufunc(MenuEntry*);
