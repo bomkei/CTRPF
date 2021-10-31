@@ -1,4 +1,4 @@
-.PRECIOUS: %.elf
+.PRECIOUS: %.elf %.o
 
 TARGET		= acnl_power
 

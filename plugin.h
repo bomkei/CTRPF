@@ -92,7 +92,7 @@ namespace CTRPluginFramework {
   class KeyboardJPImpl;
   class KeyboardJP {
   public:
-    KeyboardJP(std::string const& text);
+    KeyboardJP(std::string const& text = "");
     ~KeyboardJP();
 
     void SetMaxLength(u32 max) const;
@@ -108,4 +108,6 @@ namespace CTRPluginFramework {
     void screen_test(MenuEntry*);
     void screen_test_menufunc(MenuEntry*);
   } // namespace ScreenTester
+
+  void jpn_keyboard(MenuEntry*);
 } // namespace CTRPluginFramework
