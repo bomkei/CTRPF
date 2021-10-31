@@ -11,6 +11,15 @@ namespace CTRPluginFramework {
 
   static std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> conv;
 
+  constexpr auto posX = 40;
+  constexpr auto posY = 68;
+
+  constexpr auto keyWidth  = 20;
+  constexpr auto keyHeight = 18;
+
+  constexpr auto panelWidth  = 12;
+  constexpr auto panelHeight = 5;
+
   class KeyboardJPImpl {
     friend class KeyboardJP;
 
@@ -18,8 +27,9 @@ namespace CTRPluginFramework {
     bool can_switch;
     bool can_abort;
 
-    bool is_touch;
     UIntVector tch_pos;
+    bool is_touch = 0;
+    int cursor_x  = 0;
 
     std::u16string data;
 
@@ -31,31 +41,40 @@ namespace CTRPluginFramework {
     }
 
     void Draw(Screen const& scr) {
+      static u8 cursor_tick  = 0;
+      static u8 cursor_tick2 = 0;
+
       scr.DrawRect(20, 20, 280, 200, Color::Black);
       scr.DrawRect(22, 22, 276, 196, Color::White, 0);
 
-      constexpr auto posX = 40;
-      constexpr auto posY = 68;
+      scr.DrawSysfont(conv.to_bytes(data), posX, 32);
+      scr.DrawRect(48);
 
-      constexpr auto keyWidth  = 20;
-      constexpr auto keyHeight = 18;
-
-      constexpr auto panelWidth  = 12;
-      constexpr auto panelHeight = 5;
-
-      scr.DrawRect();
+      if (cursor_tick & 1) {
+        scr.DrawRect(posX, 32, 1, 16, Color::White);
+      }
 
       for (int x = 0; x < panelWidth; x++) {
         for (int y = 0; y < panelHeight; y++) {
           auto p = keymap + x + y * panelWidth;
 
           if (is_touch && tch_pos.x == x && tch_pos.y == y) {
+            scr.DrawRect(
+              posX + x * keyWidth, posY + y * keyHeight, keyWidth, keyHeight,
+              Color::Gray);
           }
 
           scr.DrawSysfont(
             conv.to_bytes(std::u16string(1, *p)), posX + x * keyWidth,
             posY + y * keyHeight);
         }
+      }
+
+      cursor_tick2++;
+
+      if (cursor_tick2 >= 30) {
+        cursor_tick++;
+        cursor_tick2 = 0;
       }
     }
 
@@ -66,6 +85,10 @@ namespace CTRPluginFramework {
       if (is_touch) {
         tch_pos.x /= keyWidth;
         tch_pos.y /= keyHeight;
+
+        auto p = keymap + tch_pos.x + tch_pos.y * panelWidth;
+
+        data.push_back((wchar_t)*p);
       }
     }
 
